@@ -32,6 +32,6 @@ phases:
       - IMAGE_SHA=`docker push ${REPO}:${TAG} | tail -n 1 | cut -d" " -f 3` 
       - echo sha256=$IMAGE_SHA
       - |
-        [[ ! -z "$IMAGE_SHA" ]] || exit -1
+        [ ! -z "$IMAGE_SHA" ] || exit -1
       - BUILT_IMAGE=${REPO}:${TAG}@${IMAGE_SHA}
       - echo ${BUILT_IMAGE}
