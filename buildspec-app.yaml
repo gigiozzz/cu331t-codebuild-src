@@ -1,0 +1,38 @@
+version: 0.2
+
+env:
+  exported-variables:
+    - BUILT_IMAGE
+#  variables:
+#    IMAGE_TAG: $(echo $TAG)
+#    IMAGE_REPO: ${REPO | "795496658604.dkr.ecr.us-east-1.amazonaws.com/cuapp"}
+
+phases:
+  pre_build:
+    on-failure: ABORT
+    commands:
+#      - echo docker info
+#      - docker info
+      - printenv
+      - echo Logging in to Amazon ECR...
+      # old cli - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 795496658604.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image ${REPO}:${TAG}
+      - docker build -t image:${TAG} -f app.Dockerfile .
+      - docker tag image:${TAG} ${REPO}:${TAG}
+  post_build:
+    on-failure: ABORT
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - set -e
+      - set -o pipefail
+      - IMAGE_SHA=`docker push ${REPO}:${TAG} | tail -n 1 | cut -d" " -f 3` 
+      - |
+        [[ ! -z "$IMAGE_SHA" ]] || exit -1
+      - BUILT_IMAGE=${REPO}:${TAG}@${IMAGE_SHA}
+      - echo ${BUILT_IMAGE}
