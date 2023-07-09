@@ -3,17 +3,15 @@ version: 0.2
 env:
   exported-variables:
     - BUILT_IMAGE
-#  variables:
-#    IMAGE_TAG: $(echo $TAG)
-#    IMAGE_REPO: ${REPO | "795496658604.dkr.ecr.us-east-1.amazonaws.com/curp"}
 
 phases:
   pre_build:
     on-failure: ABORT
     commands:
-#      - echo docker info
-#      - docker info
-      - printenv
+#      - echo Docker info
+#      - docker info # for debug
+      - echo Logging env variables...
+      - printenv # for debug
       - echo Logging in to Amazon ECR...
       # old cli - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${REGISTRY}
